@@ -1,15 +1,15 @@
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const LEVEL_IDS = Object.freeze([1, 2, 3, 4]);
 
 export const LEVELS = Object.freeze({
-  1: Object.freeze({ id:1, title:'レベル1', label:'5まで', description:'5までのたし算・ひき算', max:5 }),
-  2: Object.freeze({ id:2, title:'レベル2', label:'10まで', description:'10までのたし算・ひき算', max:10 }),
-  3: Object.freeze({ id:3, title:'レベル3', label:'20まで', description:'20までのたし算・ひき算', max:20 }),
-  4: Object.freeze({ id:4, title:'レベル4', label:'20まで・ランダム', description:'20までのたし算・ひき算・ランダム', max:20 })
+  1: Object.freeze({id:1,title:'レベル1',label:'20までのたし算',description:'20までのたし算',operation:'add'}),
+  2: Object.freeze({id:2,title:'レベル2',label:'くりさがりなしのひき算',description:'くりさがりなしのひき算',operation:'sub'}),
+  3: Object.freeze({id:3,title:'レベル3',label:'20−一けた',description:'20から一けたをひくひき算',operation:'sub'}),
+  4: Object.freeze({id:4,title:'レベル4',label:'たしひき・まぜまぜ',description:'これまでの問題をまぜて、少しむずかしい問題にも挑戦',operation:'both'})
 });
 
-export function shuffle(items, random = Math.random) {
-  const copy = [...items];
+export function shuffle(items, random=Math.random){
+  const copy=[...items];
   for(let i=copy.length-1;i>0;i-=1){
     const j=Math.floor(random()*(i+1));
     [copy[i],copy[j]]=[copy[j],copy[i]];
@@ -17,65 +17,70 @@ export function shuffle(items, random = Math.random) {
   return copy;
 }
 
-function clampInt(n,min,max){ return Math.max(min,Math.min(max,Math.floor(Number(n)||0))); }
-
 export function mathQuestion(operation,a,b){
   const op=operation==='sub'?'sub':'add';
-  const left=Number(a);
-  const right=Number(b);
-  const answer=op==='add'?left+right:left-right;
-  return {
-    operation:op,
-    left,
-    right,
-    answer,
-    key:op+':'+String(left)+':'+String(right)
-  };
+  const left=Number(a), right=Number(b);
+  return {operation:op,left,right,answer:op==='add'?left+right:left-right,key:op+':'+left+':'+right};
 }
 
-export const question = mathQuestion;
+export const question=mathQuestion;
 
-function buildAddition(max){
+function buildLevel1(){
   const rows=[];
-  for(let a=1;a<max;a+=1){
-    for(let b=1;b<=max-a;b+=1) rows.push(mathQuestion('add',a,b));
+  for(let a=1;a<=19;a+=1) for(let b=1;b<=20-a;b+=1) rows.push(mathQuestion('add',a,b));
+  return rows;
+}
+
+function buildLevel2(){
+  const rows=[];
+  for(let a=2;a<=9;a+=1) for(let b=1;b<a;b+=1) rows.push(mathQuestion('sub',a,b));
+  for(let a=11;a<=19;a+=1){
+    const ones=a%10;
+    for(let b=1;b<=ones;b+=1) rows.push(mathQuestion('sub',a,b));
   }
   return rows;
 }
 
-function buildSubtraction(max){
+function buildLevel3(){
   const rows=[];
-  for(let a=2;a<=max;a+=1){
-    for(let b=1;b<a;b+=1) rows.push(mathQuestion('sub',a,b));
-  }
+  for(let b=1;b<=9;b+=1) rows.push(mathQuestion('sub',20,b));
   return rows;
 }
 
-export function operationQuestions(operation,max,random=Math.random){
-  const limit=clampInt(max,2,20);
-  let rows=[];
-  if(operation==='add'||operation==='both') rows.push(...buildAddition(limit));
-  if(operation==='sub'||operation==='both') rows.push(...buildSubtraction(limit));
+function buildLevel4(){
+  const map=new Map();
+  [...buildLevel1(),...buildLevel2(),...buildLevel3()].forEach(q=>map.set(q.key,q));
+  for(let a=11;a<=20;a+=1){
+    for(let b=1;b<=9;b+=1){
+      if(a-b>=1){
+        const q=mathQuestion('sub',a,b);
+        map.set(q.key,q);
+      }
+    }
+  }
+  for(let a=1;a<=9;a+=1){
+    for(let b=1;b<=9;b+=1){
+      if(a+b>=11&&a+b<=20) {
+        const q=mathQuestion('add',a,b);
+        map.set(q.key,q);
+      }
+    }
+  }
+  return [...map.values()];
+}
+
+export function levelQuestions(level,random=Math.random){
+  const n=Number(level);
+  const rows=n===1?buildLevel1():n===2?buildLevel2():n===3?buildLevel3():n===4?buildLevel4():[];
   return shuffle(rows,random);
 }
 
-export function levelQuestions(level,random=Math.random,operation='both'){
-  const config=LEVELS[Number(level)];
-  if(!config) return [];
-  if(Number(level)===4) return operationQuestions('both',20,random);
-  return operationQuestions(operation,config.max,random);
-}
-
-export function stageQuestions(level,random=Math.random,operation='both'){
-  return levelQuestions(Number(level),random,operation);
-}
+export function stageQuestions(level,random=Math.random){return levelQuestions(level,random);}
 
 export function bossQuestions(levels,random=Math.random){
   const requested=Array.isArray(levels)?levels:[levels];
   const unique=new Map();
-  requested.forEach(level=>{
-    levelQuestions(Number(level),random,'both').forEach(q=>unique.set(q.key,q));
-  });
+  requested.forEach(level=>levelQuestions(Number(level),random).forEach(q=>unique.set(q.key,q)));
   return shuffle([...unique.values()],random);
 }
 
@@ -94,13 +99,9 @@ export class QuestionBag{
   }
 }
 
-export function comboAnimation(combo){
-  return combo>=5&&combo%5===0?'special':'attack';
-}
+export function comboAnimation(combo){return combo>=5&&combo%5===0?'special':'attack';}
 
-export function emptyStat(){
-  return { attempts:0,correct:0,wrong:0,recentResults:[],lastAskedAt:null,lastWrongAt:null,reviewActive:false,reviewCorrectStreak:0 };
-}
+export function emptyStat(){return {attempts:0,correct:0,wrong:0,recentResults:[],lastAskedAt:null,lastWrongAt:null,reviewActive:false,reviewCorrectStreak:0};}
 
 export function recordAttempt(state,q,isCorrect,now=new Date().toISOString()){
   const stat=state.mathStats[q.key]||emptyStat();
@@ -131,9 +132,7 @@ export function parseKey(key){
   return mathQuestion(op,Number(a),Number(b));
 }
 
-function keysForLevel(level){
-  return new Set(levelQuestions(level,()=>0.5,'both').map(q=>q.key));
-}
+function keysForLevel(level){return new Set(levelQuestions(level,()=>0.5).map(q=>q.key));}
 
 export function levelSummary(state,level){
   const keys=keysForLevel(level);
@@ -158,40 +157,19 @@ export function recommendedKeys(state,limit=5){
   return Object.entries(state.mathStats)
     .filter(([,stat])=>stat.reviewActive)
     .sort(([,a],[,b])=>b.wrong-a.wrong||new Date(b.lastWrongAt||0)-new Date(a.lastWrongAt||0))
-    .slice(0,limit)
-    .map(([key])=>key);
+    .slice(0,limit).map(([key])=>key);
 }
 
-export function isMaster(state,level){
-  const progress=state.stageProgress[level];
-  return Boolean(progress?.cleared&&progress?.noMiss);
-}
+export function isMaster(state,level){return Boolean(state.stageProgress[level]?.cleared&&state.stageProgress[level]?.noMiss);}
 
 export function defaultState(){
   const stageProgress={};
   LEVEL_IDS.forEach(level=>stageProgress[level]={cleared:false,noMiss:false});
   return {
-    schemaVersion:SCHEMA_VERSION,
-    selectedCharacter:'sora',
-    trainingPartner:'kai',
-    playerLevel:1,
-    exp:0,
-    supportMode:false,
-    selectedOperation:'both',
-    stageProgress,
-    bossProgress:{mid1:{defeated:false},mid2:{defeated:false},final:{defeated:false}},
-    mathStats:{},
-    recentAttempts:[],
-    reviewQueue:[],
-    mastery:{1:false,2:false,3:false,4:false},
-    bestTimes:{normal:{},support:{}},
-    maxCombos:{},
-    monsterBook:{},
-    monsterDefeatCounts:{},
-    collections:[],
-    settings:{muted:false,volume:0.24},
-    adventureReward:{date:'',byLevel:{}},
-    trainingExp:{date:'',earned:0}
+    schemaVersion:SCHEMA_VERSION,selectedCharacter:'sora',trainingPartner:'kai',playerLevel:1,exp:0,supportMode:false,
+    selectedOperation:'both',stageProgress,bossProgress:{mid1:{defeated:false},mid2:{defeated:false},final:{defeated:false}},
+    mathStats:{},recentAttempts:[],reviewQueue:[],mastery:{1:false,2:false,3:false},bestTimes:{normal:{},support:{}},maxCombos:{},
+    monsterBook:{},monsterDefeatCounts:{},collections:[],settings:{muted:false,volume:0.24},adventureReward:{date:'',byLevel:{}},trainingExp:{date:'',earned:0}
   };
 }
 
@@ -233,13 +211,13 @@ export function addExp(state,amount){
 
 export function trainingSeed(state,type,level=null,preferredKeys=[],operation='both',random=Math.random){
   let pool=[];
-  if(type==='stage') pool=levelQuestions(Number(level),random,operation);
+  if(type==='stage')pool=levelQuestions(Number(level),random);
   else{
     const keys=preferredKeys.length?preferredKeys:state.reviewQueue;
     pool=keys.map(parseKey);
     if(type==='auto')pool.push(...recommendedKeys(state,9).map(parseKey));
   }
-  if(!pool.length)pool=bossQuestions([1,2,3],random);
+  if(!pool.length)pool=bossQuestions([1,2,3,4],random);
   const bag=shuffle([...new Map(pool.map(q=>[q.key,q])).values()],random);
   const result=[];
   while(result.length<10)result.push(...shuffle(bag,random));
