@@ -14,9 +14,9 @@ let training=null;
 let audioContext=null;
 
 const BOSS_CONFIG={
-  mid1:{title:'中ボス・たしひきの森',rule:'5〜10まで',hp:8,time:90,levels:[1,2],monster:BOSSES.mid1},
-  mid2:{title:'中ボス・20までの空',rule:'20まで',hp:10,time:100,levels:[3],monster:BOSSES.mid2},
-  final:{title:'大ボス・たしひきマスター',rule:'20まで・ランダム',hp:12,time:120,levels:[3,4],monster:BOSSES.final}
+  mid1:{title:'中ボス・たしひきの森',rule:'レベル1・2',hp:8,time:90,levels:[1,2],monster:BOSSES.mid1},
+  mid2:{title:'中ボス・20ひきの空',rule:'レベル3',hp:10,time:100,levels:[3],monster:BOSSES.mid2},
+  final:{title:'大ボス・たしひきマスター',rule:'レベル4・まぜまぜ',hp:12,time:120,levels:[1,2,3,4],monster:BOSSES.final}
 };
 
 function save(){storage.save('state',state);}
@@ -117,17 +117,15 @@ function operationLabel(operation){
   return operation==='add'?'たし算':operation==='sub'?'ひき算':'どっちも！';
 }
 function prepareBattle(config){
-  pendingBattle={...config,operation:config.operation||state.selectedOperation||'both'};
+  pendingBattle={...config};
   const normal=config.kind==='normal';
   const monster=normal?normalMonsterForLevel(config.level):BOSS_CONFIG[config.bossId].monster;
   const maxHp=normal?5:BOSS_CONFIG[config.bossId].hp;
   const baseTime=normal?90:BOSS_CONFIG[config.bossId].time;
-  const title=normal?LEVELS[config.level].title+'・'+LEVELS[config.level].label:BOSS_CONFIG[config.bossId].title;
   const rule=normal?LEVELS[config.level].description:BOSS_CONFIG[config.bossId].rule;
-  $('#prep-title').textContent=title;
+  $('#prep-title').textContent=normal?LEVELS[config.level].title+'・'+LEVELS[config.level].label:BOSS_CONFIG[config.bossId].title;
   $('#prep-enemy-name').textContent=monster.name;
-  $('#prep-rule').textContent='「'+operationLabel(pendingBattle.operation)+'」｜HP '+maxHp+'｜'+baseTime+'秒｜'+rule+'｜'+maxHp+'問正解で撃破';
-  $$('#operation-select button').forEach(button=>button.classList.toggle('selected',button.dataset.operation===pendingBattle.operation));
+  $('#prep-rule').textContent='HP '+maxHp+'｜'+baseTime+'秒｜'+rule+'｜'+maxHp+'問正解で撃破';
   $('#prep-support').checked=state.supportMode;
   $('#support-detail').textContent='HP7・時間'+(baseTime+30)+'秒';
   setImage($('#prep-player'),CHARACTERS[state.selectedCharacter].stand);
@@ -154,15 +152,13 @@ function setupKeypad(container,session,onSubmit,onChange){
 }
 function battleConfig(){
   const support=$('#prep-support').checked;
-  const operation=$('#operation-select .selected')?.dataset.operation||'both';
   state.supportMode=support;
-  state.selectedOperation=operation;
   save();
   if(pendingBattle.kind==='normal'){
-    return {...pendingBattle,support,operation,playerMaxHp:support?7:5,enemyMaxHp:5,time:support?120:90,monster:pendingBattle.monster,background:BACKGROUNDS.normal};
+    return {...pendingBattle,support,playerMaxHp:support?7:5,enemyMaxHp:5,time:support?120:90,monster:pendingBattle.monster,background:BACKGROUNDS.normal};
   }
   const boss=BOSS_CONFIG[pendingBattle.bossId];
-  return {...pendingBattle,support,operation,playerMaxHp:support?7:5,enemyMaxHp:boss.hp,time:boss.time+(support?30:0),monster:pendingBattle.monster,background:BACKGROUNDS[pendingBattle.bossId],levels:boss.levels};
+  return {...pendingBattle,support,playerMaxHp:support?7:5,enemyMaxHp:boss.hp,time:boss.time+(support?30:0),monster:pendingBattle.monster,background:BACKGROUNDS[pendingBattle.bossId],levels:boss.levels};
 }
 function startBattle(){
   const config=battleConfig();
@@ -171,7 +167,7 @@ function startBattle(){
   const score=new ScoreManager();
   const combo=new ComboManager({eventTarget:document});
   const bag=config.kind==='normal'
-    ?new QuestionBag(()=>stageQuestions(config.level,Math.random,config.operation))
+    ?new QuestionBag(()=>stageQuestions(config.level))
     :new QuestionBag(()=>bossQuestions(config.levels));
   battle={config,input,score,combo,bag,playerHp:config.playerMaxHp,enemyHp:config.enemyMaxHp,current:null,wrongKeys:new Set(),asked:0,locked:false,ended:false,startedAt:Date.now(),timer:null};
   battle.timer=new CountdownTimer(config.time,{eventTarget,onTick:remaining=>$('#battle-time').textContent=remaining,warningAt:[10]});
@@ -368,14 +364,14 @@ function renderTrainingMenu(){
   LEVEL_IDS.forEach(level=>{
     const button=document.createElement('button');
     button.textContent='レベル'+level;
-    button.addEventListener('click',()=>startTraining('stage',level,[],null,state.selectedOperation||'both'));
+    button.addEventListener('click',()=>startTraining('stage',level));
     picker.append(button);
   });
 }
-function startTraining(type,level=null,preferredKeys=[],returnBattle=null,operation='both'){
-  const seed=trainingSeed(state,type,level,preferredKeys,operation);
+function startTraining(type,level=null,preferredKeys=[],returnBattle=null){
+  const seed=trainingSeed(state,type,level,preferredKeys);
   const input=new NumberInput({answer:0},{eventTarget:document});
-  training={type,level,preferredKeys,returnBattle,operation,input,scheduler:new TrainingScheduler(seed),score:new ScoreManager(),locked:false,beforeQueue:new Set(state.reviewQueue)};
+  training={type,level,preferredKeys,returnBattle,input,scheduler:new TrainingScheduler(seed),score:new ScoreManager(),locked:false,beforeQueue:new Set(state.reviewQueue)};
   $('#training').style.backgroundImage='url("'+BACKGROUNDS.training+'")';
   $('#training').style.backgroundSize='cover';
   $('#training').style.backgroundPosition='center';
@@ -442,7 +438,7 @@ function finishTraining(){
   const actions=$('#result-actions');
   actions.innerHTML='';
   if(session.returnBattle)actions.append(actionButton('もう一度バトル！',()=>prepareBattle({...session.returnBattle}),true));
-  actions.append(actionButton('続けて特訓',()=>startTraining(session.type,session.level,session.preferredKeys,session.returnBattle,session.operation),!session.returnBattle));
+  actions.append(actionButton('続けて特訓',()=>startTraining(session.type,session.level,session.preferredKeys,session.returnBattle),!session.returnBattle));
   actions.append(actionButton('たしひきマップを見る',()=>show('map')));
   actions.append(actionButton('ホームへ',()=>show('home')));
   playSound(overcome.length?'allclear':'correct');
@@ -500,15 +496,6 @@ $$('[data-training]').forEach(button=>{
     const type=button.dataset.training;
     if(type==='stage')$('#training-level-picker').hidden=!$('#training-level-picker').hidden;
     else startTraining(type);
-  });
-});
-$$('[data-operation]').forEach(button=>{
-  button.addEventListener('click',()=>{
-    $$('#operation-select button').forEach(btn=>btn.classList.remove('selected'));
-    button.classList.add('selected');
-    pendingBattle&&(pendingBattle.operation=button.dataset.operation);
-    state.selectedOperation=button.dataset.operation;
-    save();
   });
 });
 $('#change-partner').addEventListener('click',()=>show('partner-select'));
