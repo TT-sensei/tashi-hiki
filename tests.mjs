@@ -1,29 +1,31 @@
 import assert from 'node:assert/strict';
-import { defaultState, stageQuestions, getStageRewardExp, bossQuestions, comboAnimation, mathQuestion, recordAttempt, TrainingScheduler, migrateState, isMaster, levelQuestions, parseKey } from './logic.js';
+import {defaultState,stageQuestions,getStageRewardExp,comboAnimation,mathQuestion,recordAttempt,TrainingScheduler,migrateState,isMaster,parseKey} from './logic.js';
+import {NORMAL_MONSTERS} from './data.js';
 
-const l1=stageQuestions(1,()=>0.5,'both');
-assert.ok(l1.length>0);
-assert.ok(l1.every(q=>Math.max(q.left,q.right,q.answer)<=5));
-assert.ok(l1.every(q=>['add','sub'].includes(q.operation)));
+const l1=stageQuestions(1,()=>0.5);
+assert.equal(l1.length,190);
+assert.ok(l1.every(q=>q.operation==='add'&&q.answer>=2&&q.answer<=20));
 
-const l2=stageQuestions(2,()=>0.5,'both');
-assert.ok(l2.every(q=>q.answer>=1 && q.answer<=10));
+const l2=stageQuestions(2,()=>0.5);
+assert.ok(l2.length>0);
+assert.ok(l2.every(q=>q.operation==='sub'&&q.answer>=1));
+assert.ok(l2.every(q=>q.left<10 || q.right<=q.left%10));
 
-const l3=stageQuestions(3,()=>0.5,'both');
-assert.ok(l3.every(q=>q.answer>=1 && q.answer<=20));
+const l3=stageQuestions(3,()=>0.5);
+assert.equal(l3.length,9);
+assert.ok(l3.every(q=>q.operation==='sub'&&q.left===20&&q.right>=1&&q.right<=9&&q.answer>=11&&q.answer<=19));
 
-const addOnly=stageQuestions(2,()=>0.5,'add');
-assert.ok(addOnly.every(q=>q.operation==='add'));
-const subOnly=stageQuestions(2,()=>0.5,'sub');
-assert.ok(subOnly.every(q=>q.operation==='sub'));
+const l4=stageQuestions(4,()=>0.5);
+assert.ok(l4.some(q=>q.operation==='add'));
+assert.ok(l4.some(q=>q.operation==='sub'));
+assert.ok(l4.every(q=>q.answer>=1&&q.answer<=20));
 
-assert.equal(mathQuestion('add',3,4).answer,7);
-assert.equal(mathQuestion('sub',9,5).answer,4);
-assert.equal(parseKey('add:3:4').answer,7);
+assert.equal(mathQuestion('add',12,8).answer,20);
+assert.equal(mathQuestion('sub',18,7).answer,11);
+assert.equal(parseKey('add:12:8').answer,20);
 
 for(const n of [5,10,15,20,25,30])assert.equal(comboAnimation(n),'special');
 for(const n of [1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19])assert.equal(comboAnimation(n),'attack');
-
 assert.equal(NORMAL_MONSTERS.length,24);
 
 const rewardState=defaultState();
@@ -59,5 +61,4 @@ assert.equal(isMaster(state,1),true);
 const restored=migrateState(JSON.parse(JSON.stringify({...state,playerLevel:12,collections:['dragon']})));
 assert.equal(restored.playerLevel,12);
 assert.deepEqual(restored.collections,['dragon']);
-
-console.log('All tashi-hiki battle logic tests passed.');
+console.log('All tashi-hiki level and persistence tests passed.');
