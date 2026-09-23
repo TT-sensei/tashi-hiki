@@ -210,7 +210,7 @@ export function migrateState(saved){
   merged.adventureReward={...base.adventureReward,...(saved.adventureReward||{}),byLevel:{...(saved.adventureReward?.byLevel||{})}};
   merged.mathStats=saved.mathStats&&typeof saved.mathStats==='object'?saved.mathStats:{};
   merged.recentAttempts=Array.isArray(saved.recentAttempts)?saved.recentAttempts.slice(-250):[];
-  merged.reviewQueue=[...new Set((saved.reviewQueue||[]).filter(key=>/^(add|sub):\\d+:\\d+$/.test(key)))];
+  merged.reviewQueue=[...new Set((saved.reviewQueue||[]).filter(key=>/^(add|sub):\d+:\d+$/.test(key)))];
   merged.collections=Array.isArray(saved.collections)?[...new Set(saved.collections)]:[];
   merged.monsterBook=saved.monsterBook&&typeof saved.monsterBook==='object'?saved.monsterBook:{};
   merged.monsterDefeatCounts=saved.monsterDefeatCounts&&typeof saved.monsterDefeatCounts==='object'?saved.monsterDefeatCounts:{};
