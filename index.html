@@ -17,7 +17,7 @@
     <section id="home" class="screen home-screen" aria-labelledby="title">
       <header class="home-head">
         <div>
-          <p class="eyebrow">たし算・ひき算の力を育てる冒険</p>
+          <p class="eyebrow">4つのレベルで、たし算・ひき算の力を育てる冒険</p>
           <h1 id="title">たしひきファンタジーバトル</h1>
           <p class="hero-copy">できなかった問題は、仲間と特訓。できるようになったら、もう一度バトルへ！</p>
         </div>
@@ -43,7 +43,7 @@
     </section>
 
     <section id="adventure" class="screen panel-screen" hidden>
-      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">4つのレベルから挑戦</p><h2>ぼうけんマップ</h2></div></header>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">学ぶ内容ごとの4つのレベル</p><h2>ぼうけんマップ</h2></div></header>
       <div id="stage-grid" class="stage-grid"></div>
       <h3 class="section-title">ボスへの道</h3>
       <div id="boss-grid" class="boss-grid"></div>
@@ -55,11 +55,7 @@
         <img id="prep-player" alt="主人公">
         <div class="prep-info"><h3 id="prep-enemy-name"></h3><p id="prep-rule"></p>
 
-          <div class="mode-select-grid" id="operation-select" aria-label="計算の種類">
-            <button type="button" data-operation="add"><span>＋</span><strong>たし算</strong><small>たす問題</small></button>
-            <button type="button" data-operation="sub"><span>−</span><strong>ひき算</strong><small>ひく問題</small></button>
-            <button type="button" data-operation="both" class="selected"><span>＋−</span><strong>どっちも！</strong><small>たし算・ひき算</small></button>
-          </div>
+          
           <label class="support-toggle"><input id="prep-support" type="checkbox"><span>サポートON</span><small id="support-detail">HP7・時間90秒</small></label>
           <button id="start-battle" class="primary big">バトルスタート！</button>
         </div>
