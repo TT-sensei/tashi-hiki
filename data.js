@@ -73,7 +73,7 @@ export const BOSS_CANDIDATES={
 
 export const BOSSES=Object.fromEntries(Object.entries(BOSS_CANDIDATES).map(([id,candidates])=>[id,candidates[0]]));
 export const BACKGROUNDS={
-  home:NAVI+'/backgrounds/town.webp',
+  home:NAVI+'/backgrounds/forest.webp',
   training:NAVI+'/backgrounds/training-ground.webp',
   normal:NAVI+'/backgrounds/grassland.webp',
   mid1:NAVI+'/backgrounds/forest.webp',
