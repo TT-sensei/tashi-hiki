@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17324d">
+  <meta name="description" content="小学1年生くらいのたし算・ひき算を練習するファンタジーバトル教材">
+  <title>たしひきファンタジーバトル</title>
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects.css">
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-learning.css">
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects-library.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="sticker-effects.css">
+</head>
+<body>
+  <div id="app">
+    <section id="home" class="screen home-screen" aria-labelledby="title">
+      <header class="home-head">
+        <div>
+          <p class="eyebrow">たし算・ひき算の力を育てる冒険</p>
+          <h1 id="title">たしひきファンタジーバトル</h1>
+          <p class="hero-copy">できなかった問題は、仲間と特訓。できるようになったら、もう一度バトルへ！</p>
+        </div>
+        <div class="profile-pill"><span id="home-role">剣士</span><strong>Lv.<span id="home-level">1</span></strong></div>
+      </header>
+      <div class="home-main-actions">
+        <button class="mode-card adventure" data-go="adventure"><span class="mode-icon">⚔️</span><span><strong>ぼうけん</strong><small>モンスターとたしひきバトル</small></span></button>
+        <button class="mode-card training" data-go="training-menu"><span class="mode-icon">📖</span><span><strong>特訓</strong><small>仲間と苦手を練習</small></span></button>
+      </div>
+      <nav class="subnav" aria-label="補助メニュー">
+        <button data-go="map">たしひきマップ</button><button data-go="book">モンスター図鑑</button><button data-go="collection">コレクション</button><button data-go="settings">せってい</button>
+      </nav>
+      <div class="home-footer-card">
+        <img id="home-character" alt="選んだ冒険の主人公">
+        <div><strong id="home-review">特訓おすすめはまだありません</strong><span>バトルと特訓の記録は、この端末に保存されます。</span></div>
+        <button class="text-button" data-go="characters">主人公をかえる</button>
+      </div>
+    </section>
+
+    <section id="characters" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← もどる</button><div><p class="eyebrow">能力差はありません</p><h2>主人公をえらぶ</h2></div></header>
+      <div id="character-grid" class="character-grid"></div>
+    </section>
+
+    <section id="adventure" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">4つのレベルから挑戦</p><h2>ぼうけんマップ</h2></div></header>
+      <div id="stage-grid" class="stage-grid"></div>
+      <h3 class="section-title">ボスへの道</h3>
+      <div id="boss-grid" class="boss-grid"></div>
+    </section>
+
+    <section id="battle-prep" class="screen panel-screen compact" hidden>
+      <header class="screen-head"><button class="back" data-go="adventure">← もどる</button><div><p class="eyebrow">バトルの準備</p><h2 id="prep-title">レベル1</h2></div></header>
+      <div class="prep-card">
+        <img id="prep-player" alt="主人公">
+        <div class="prep-info"><h3 id="prep-enemy-name"></h3><p id="prep-rule"></p>
+
+          <div class="mode-select-grid" id="operation-select" aria-label="計算の種類">
+            <button type="button" data-operation="add"><span>＋</span><strong>たし算</strong><small>たす問題</small></button>
+            <button type="button" data-operation="sub"><span>−</span><strong>ひき算</strong><small>ひく問題</small></button>
+            <button type="button" data-operation="both" class="selected"><span>＋−</span><strong>どっちも！</strong><small>たし算・ひき算</small></button>
+          </div>
+          <label class="support-toggle"><input id="prep-support" type="checkbox"><span>サポートON</span><small id="support-detail">HP7・時間90秒</small></label>
+          <button id="start-battle" class="primary big">バトルスタート！</button>
+        </div>
+        <img id="prep-enemy" alt="対戦するモンスター">
+      </div>
+    </section>
+
+    <section id="battle" class="screen battle-screen" hidden>
+      <div class="battle-status">
+        <div class="hp-group"><span>なかま HP</span><div id="player-hearts" class="hearts"></div></div>
+        <div class="timer-box" aria-live="polite">のこり <strong id="battle-time">60</strong> 秒</div>
+        <div class="hp-group enemy"><span>モンスター HP <b id="enemy-hp-text"></b></span><div class="hp-bar"><i id="enemy-hp-bar"></i></div></div>
+      </div>
+      <div id="battle-field" class="battle-field">
+        <div class="fighter player-side"><img id="battle-player" alt="主人公"><span id="combo-label">0 COMBO</span></div>
+        <main class="question-zone">
+          <p id="battle-progress" class="progress-label">1問目</p>
+          <div id="battle-question" class="question-text">3 ＋ 2 ＝ <span id="battle-answer" class="answer-slot">?</span></div>
+          <div id="battle-feedback" class="feedback" aria-live="assertive"></div>
+          <div id="battle-keypad" class="keypad"></div>
+        </main>
+        <div class="fighter enemy-side"><img id="battle-enemy" alt="モンスター"><strong id="battle-enemy-name"></strong></div>
+      </div>
+      <button id="battle-exit" class="corner-exit">やめる</button>
+    </section>
+
+    <section id="training-menu" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">HPなし・タイマーなし</p><h2>仲間と特訓</h2></div></header>
+      <div class="training-intro"><div class="training-friends"><img id="training-menu-player" alt="主人公"><img id="training-menu-partner" alt="特訓の仲間"></div><div><strong>10問、ゆっくり練習しよう</strong><p>間違えても大丈夫。少し間を空けて、もう一度出てきます。</p><button id="change-partner" class="secondary">なかまをかえる</button></div></div>
+      <div class="training-options">
+        <button data-training="auto"><span>✨</span><strong>おまかせ特訓</strong><small>記録から苦手を自動で選ぶ</small></button>
+        <button data-training="stage"><span>🔢</span><strong>レベルをえらんで特訓</strong><small>学びたいレベルを重点練習</small></button>
+        <button data-training="wrong"><span>🔁</span><strong>まちがい特訓</strong><small id="wrong-count">未克服 0問</small></button>
+      </div>
+      <div id="training-level-picker" class="factor-picker" hidden></div>
+    </section>
+
+    <section id="partner-select" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="training-menu">← もどる</button><div><p class="eyebrow">学習条件は同じです</p><h2>特訓のなかまをえらぶ</h2></div></header>
+      <div id="partner-grid" class="character-grid"></div>
+    </section>
+
+    <section id="training" class="screen training-screen" hidden>
+      <div class="training-top"><button id="training-exit" class="back">← やめる</button><strong id="training-title">おまかせ特訓</strong><span>あと <b id="training-remaining">10</b> 問</span></div>
+      <div class="training-field">
+        <img id="training-player" class="training-char" alt="主人公">
+        <main class="question-zone calm">
+          <div id="training-question" class="question-text">18 ÷ 3 ＝ <span id="training-answer" class="answer-slot">?</span></div>
+          <div id="training-feedback" class="feedback" aria-live="assertive"></div>
+          <div id="training-keypad" class="keypad"></div>
+        </main>
+        <div class="partner-wrap"><div id="partner-speech" class="speech">いっしょにやろう！</div><img id="training-partner" class="training-char" alt="特訓の仲間"></div>
+      </div>
+    </section>
+
+    <section id="result" class="screen panel-screen result-screen" hidden>
+      <div id="result-hero" class="result-hero"><span id="result-mark">✨</span><div><p id="result-kicker" class="eyebrow">バトル終了</p><h2 id="result-title">クリア！</h2><p id="result-message"></p></div></div>
+      <div id="result-stats" class="result-stats"></div>
+      <div id="result-reward" class="reward-card" hidden></div>
+      <div id="result-weak" class="weak-card" hidden></div>
+      <div id="result-actions" class="result-actions"></div>
+    </section>
+
+    <section id="map" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">実績と今の習熟を別々に表示</p><h2>たしひきマップ</h2></div></header>
+      <div id="map-grid" class="map-grid"></div>
+      <div class="recommend-card"><h3>特訓おすすめ</h3><div id="recommend-list"></div></div>
+    </section>
+
+    <section id="book" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">倒したモンスターを記録</p><h2>モンスター図鑑</h2></div></header>
+      <div id="book-grid" class="book-grid"></div>
+    </section>
+
+    <section id="collection" class="screen panel-screen" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">学習した結果の宝物</p><h2>コレクション</h2></div></header>
+      <p id="collection-count" class="collection-count"></p><div id="collection-grid" class="collection-grid"></div>
+    </section>
+
+    <section id="settings" class="screen panel-screen compact" hidden>
+      <header class="screen-head"><button class="back" data-go="home">← ホーム</button><div><p class="eyebrow">遊びやすさを調整</p><h2>せってい</h2></div></header>
+      <div class="settings-card">
+        <label><span><strong>効果音</strong><small>BGMはありません</small></span><input id="setting-sound" type="checkbox"></label>
+        <label><span><strong>サポートモード</strong><small>HPと時間を増やす</small></span><input id="setting-support" type="checkbox"></label>
+        <div class="data-note"><strong>保存について</strong><p>レベル・MASTER・苦手・図鑑・コレクションは、この端末に保存されます。</p></div>
+      </div>
+    </section>
+  </div>
+  <noscript>この教材を使うにはJavaScriptを有効にしてください。</noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
