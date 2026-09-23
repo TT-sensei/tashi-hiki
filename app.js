@@ -1,6 +1,6 @@
 import { EDU_EVENTS, StorageManager, ScreenManager, NumberInput, CountdownTimer, ScoreManager, ComboManager } from 'https://tt-sensei.github.io/edu-components/index.js';
 import { soundList } from 'https://tt-sensei.github.io/sounds-recipe-/sounds.js';
-import { CHARACTERS, NORMAL_MONSTERS, NORMAL_MONSTER_GROUPS, BOSS_CANDIDATES, BOSSES, BACKGROUNDS, ALL_COLLECTIONS, ENCOURAGEMENT } from './data.js';
+import { CHARACTERS, NORMAL_MONSTERS, GROUP3_MONSTERS, BOSS_CANDIDATES, BOSSES, BACKGROUNDS, ALL_COLLECTIONS, ENCOURAGEMENT } from './data.js';
 import { LEVELS, LEVEL_IDS, QuestionBag, TrainingScheduler, addExp, getStageRewardExp, bossQuestions, comboAnimation, defaultState, isMaster, levelSummary, migrateState, parseKey, recommendedKeys, recordAttempt, stageQuestions, trainingSeed } from './logic.js';
 
 const $=(selector,root=document)=>root.querySelector(selector);
@@ -21,7 +21,7 @@ const BOSS_CONFIG={
 
 function save(){storage.save('state',state);}
 function pick(list){return list[Math.floor(Math.random()*list.length)];}
-function normalMonsterForLevel(level){return pick(NORMAL_MONSTER_GROUPS[Math.max(0,Math.min(3,Number(level)-1))]);}
+function normalMonsterForLevel(){return pick(GROUP3_MONSTERS);}
 function setImage(img,src){
   if(!img)return;
   img.src=src;
@@ -459,7 +459,7 @@ function renderMap(){
   list.innerHTML=keys.length?keys.map(key=>'<button data-train-key="'+key+'">'+formatFormula(parseKey(key))+'を特訓</button>').join(''):'いまは特訓おすすめがありません。';
   $$('[data-train-key]',list).forEach(button=>button.addEventListener('click',()=>startTraining('wrong',null,[button.dataset.trainKey])));
 }
-function allMonsters(){return [...NORMAL_MONSTERS,...Object.values(BOSS_CANDIDATES).flat()];}
+function allMonsters(){return [...GROUP3_MONSTERS,...Object.values(BOSS_CANDIDATES).flat()];}
 const STICKER_EFFECTS=['holo','rainbow','glitter','neon','aurora','prism'];
 function stickerEffect(){return pick(STICKER_EFFECTS);}
 function renderBook(){
