@@ -1,0 +1,64 @@
+/* Monster sticker effects: transparent monster silhouettes keep their own outline. */
+.sticker-monster-card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:#fff;
+  --sticker-outline:#ffffff;
+  --sticker-glow:#ffd34e;
+  --sticker-speed:3.6s;
+  animation:sticker-float var(--sticker-speed) ease-in-out infinite;
+}
+.sticker-monster-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.72;
+  background:
+    radial-gradient(circle at 18% 22%,#fff9 0 2px,transparent 3px),
+    radial-gradient(circle at 82% 72%,#fff9 0 2px,transparent 3px),
+    linear-gradient(120deg,transparent 12%,#fff8 42%,transparent 58%);
+  background-size:auto,auto,220% 100%;
+  animation:sticker-shine 4.8s ease-in-out infinite;
+}
+.sticker-monster-card::after{
+  content:"✦ ･ ✧";
+  position:absolute;
+  z-index:2;
+  inset:5px;
+  pointer-events:none;
+  color:#fff;
+  font-size:clamp(11px,2vw,17px);
+  letter-spacing:clamp(4px,1vw,9px);
+  text-shadow:0 1px 3px #4b315899;
+  opacity:.78;
+  animation:sticker-sparkle 2.7s ease-in-out infinite;
+}
+.sticker-monster-card>*{position:relative;z-index:1}
+.sticker-monster-image{
+  position:relative;
+  z-index:1;
+  filter:
+    drop-shadow(0 0 0 var(--sticker-outline))
+    drop-shadow(0 0 0 var(--sticker-outline))
+    drop-shadow(0 0 2px var(--sticker-outline))
+    drop-shadow(0 4px 3px #17255466) !important;
+  transform:translateZ(0);
+  animation:sticker-pop 2.9s ease-in-out infinite;
+}
+.sticker-monster-card.effect-holo{--sticker-outline:#fff;--sticker-glow:#82e7ff;background:linear-gradient(135deg,#fff7,#8be9ff55,#ffc8ee66,#fff8)}
+.sticker-monster-card.effect-rainbow{--sticker-outline:#fff;--sticker-glow:#ff73c9;background:linear-gradient(135deg,#ffd5e955,#b9f5ff66,#e1c8ff66,#fff7)}
+.sticker-monster-card.effect-glitter{--sticker-outline:#fffdf0;--sticker-glow:#ffd34e;background:radial-gradient(circle at 50% 10%,#fff4a866,transparent 38%),#fff8df}
+.sticker-monster-card.effect-neon{--sticker-outline:#d8fbff;--sticker-glow:#43dcff;background:linear-gradient(145deg,#e7fbff,#c9e8ff,#f1ddff)}
+.sticker-monster-card.effect-aurora{--sticker-outline:#efffd9;--sticker-glow:#84e6b0;background:linear-gradient(135deg,#d7fff077,#b9e7ff88,#e9d1ff88)}
+.sticker-monster-card.effect-prism{--sticker-outline:#fff;--sticker-glow:#ffb3ef;background:linear-gradient(125deg,#ffe0e066,#fff3a866,#bceaff88,#e1c7ff88)}
+.sticker-monster-card.effect-neon .sticker-monster-image{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 0 7px var(--sticker-glow)) drop-shadow(0 4px 3px #17255466) !important}
+.sticker-monster-card.effect-glitter::after{content:"✦  ✧  ✦";color:#fff7a7}
+.sticker-monster-card.effect-prism::after{content:"✧  ◇  ✦";color:#fff}
+@keyframes sticker-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes sticker-pop{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes sticker-shine{0%,100%{background-position:0 0,0 0,-140% 0}50%{background-position:0 0,0 0,140% 0}}
+@keyframes sticker-sparkle{0%,100%{opacity:.38;transform:scale(.92) rotate(-4deg)}50%{opacity:.95;transform:scale(1.06) rotate(4deg)}}
+@media(prefers-reduced-motion:reduce){.sticker-monster-card,.sticker-monster-card::before,.sticker-monster-card::after,.sticker-monster-image{animation:none!important}}
