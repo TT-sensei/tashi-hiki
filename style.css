@@ -33,3 +33,41 @@
 #adventure .section-title{display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:999px;background:rgba(255,253,248,.76);box-shadow:0 6px 16px rgba(23,50,77,.08)}
 #adventure .section-title::after{content:'⚔️';font-size:1.05em}
 @media(max-width:600px){#adventure .screen-head{padding:9px 10px}#adventure .section-title{margin-top:22px}}
+
+/* たしひき：森の入口（ホームだけ色味を変更） */
+#home.home-screen{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(239,248,239,.38),rgba(255,253,248,.84) 88%),
+    url("https://tt-sensei.github.io/navi-character-/assets/web/fantasy/backgrounds/forest.webp") center/cover no-repeat;
+}
+#home.home-screen::before{
+  content:'✦  ✧  ✦';
+  position:absolute;
+  top:8%;
+  right:5%;
+  z-index:-1;
+  color:rgba(204,161,69,.42);
+  font-size:clamp(2rem,5vw,4rem);
+  letter-spacing:.45em;
+  transform:rotate(-8deg);
+}
+#home.home-screen .home-head h1{
+  background:linear-gradient(110deg,#214b37 10%,#3f7d55 56%,#a4772f 94%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 5px 18px rgba(33,75,55,.14);
+}
+#home.home-screen .home-head .eyebrow{color:#9a6d28}
+#home.home-screen .mode-card.adventure{
+  background:linear-gradient(135deg,#214b37 0%,#34704b 62%,#4f8b62 100%);
+}
+#home.home-screen .mode-card.training{
+  background:linear-gradient(135deg,#eef7ee 0%,#fff 58%,#f4eedc 100%);
+  border-color:#b9caa5;
+}
+#home.home-screen .mode-card::after{color:rgba(255,255,255,.42)}
+#home.home-screen .mode-card.training::after{color:rgba(154,109,40,.32)}
