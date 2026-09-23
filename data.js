@@ -45,6 +45,9 @@ export const NORMAL_MONSTER_GROUPS=[
   NORMAL_MONSTERS
 ];
 
+// たしひきファンタジーバトルではグループ3を使用
+export const GROUP3_MONSTERS=NORMAL_MONSTER_GROUPS[2];
+
 export const BOSS_CANDIDATES={
   mid1:[
     {id:'forest-horn-king',name:'森角王グランリーフ',image:MON+'/boss/forest-horn-king.webp',kind:'midboss'},
